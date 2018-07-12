@@ -12,38 +12,20 @@ hash
 end
 
 def apply_coupons(cart, coupons)
-puts coupons
-puts cart
-temp_hash = {}
-cart_temp = cart
-
-#creates base item W/COUPON applied in temp_hash
-coupons.each {|x| x.each {|c_key, c_value| 
-#  if c_key == :item
-    cart_temp.each {|item_name, details| details.each { |detail, value| 
-	      cpn_name = "#{item_name} W/COUPON" 
-	      if item_name == c_value && temp_hash.empty?
-	        temp_hash[cpn_name] = {}
-	        temp_hash[cpn_name][:price] = ""
-	        temp_hash[cpn_name][:clearance] = cart[item_name][:clearance]
-	        temp_hash[cpn_name][:count] = 0
-	      end
-	      if c_key == :cost && !temp_hash.empty?
-	        #puts "a!!"
-	        temp_hash[cpn_name][:price] = c_value
-	      end
-	      if c_key == :num && detail == :count && !temp_hash.empty?
-	        #puts "#{}"
-	        temp_hash[cpn_name][:count] += 1
-	        cart[item_name][:count] = value - c_value
+  temp_hash = {}
+  #creates base item W/COUPON applied in temp_hash
+  coupons.each {|coupon| 
+    item_name = coupon[:item]
+      if cart.include?(item_name) && cart[item_name][:count] >= coupon[:num]
+        if cart.include?("#{item_name} W/COUPON")
+          cart["#{item_name} W/COUPON"][:count] += 1 
+        else  
+          cart["#{item_name} W/COUPON"] = {:price => coupon[:cost], :clearance => cart[item_name][:clearance], :count => 1 }
         end
-    }
-    }
-}
-}
-
-temp_hash.each {|key, value| cart[key] = value }
-cart
+        cart[item_name][:count] -= cart["#{item_name} W/COUPON"][:count]
+      end
+      }
+  cart
 end
 
 def apply_clearance(cart)
